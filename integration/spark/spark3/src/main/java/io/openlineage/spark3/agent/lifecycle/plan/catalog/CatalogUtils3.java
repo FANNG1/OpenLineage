@@ -29,6 +29,7 @@ public class CatalogUtils3 {
             new DatabricksDeltaHandler(context),
             new DatabricksUnityV2Handler(context),
             new JdbcHandler(context),
+            new GravitinoHandler(context),
             new V2SessionCatalogHandler());
     return handlers.stream().filter(CatalogHandler::hasClasses).collect(Collectors.toList());
   }

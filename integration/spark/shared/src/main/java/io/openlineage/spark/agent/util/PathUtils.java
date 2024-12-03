@@ -91,6 +91,8 @@ public class PathUtils {
       }
     }
 
+    locationDataset = new DatasetIdentifier(catalogTable.identifier().toString(), "test");
+
     if (symlinkDataset.isPresent()) {
       locationDataset.withSymlink(
           symlinkDataset.get().getName(),
