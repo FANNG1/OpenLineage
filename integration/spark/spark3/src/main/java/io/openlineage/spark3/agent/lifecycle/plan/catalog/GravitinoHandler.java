@@ -50,14 +50,15 @@ public class GravitinoHandler implements CatalogHandler {
       Map<String, String> properties) {
     String catalogName = tableCatalog.name();
     String[] nameSpace = identifier.namespace();
+
     if (nameSpace == null || nameSpace.length == 0) {
-      nameSpace = new String[]{"default"};
+      nameSpace = tableCatalog.defaultNamespace();
     }
 
-    String ns =
-        Stream.concat(Stream.of(catalogName), Arrays.stream(nameSpace))
+    String name = Stream.concat(
+        Stream.concat(Stream.of(catalogName), Arrays.stream(nameSpace)), Stream.of(identifier.name()))
             .collect(Collectors.joining("."));
-    return new DatasetIdentifier(identifier.name(), ns);
+    return new DatasetIdentifier(name, "test");
   }
 
   @Override
