@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.hadoop.fs.XAttr.NameSpace;
 import org.apache.spark.sql.SparkSession;
@@ -22,23 +23,32 @@ import org.apache.spark.sql.connector.catalog.Identifier;
 import org.apache.spark.sql.connector.catalog.TableCatalog;
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions;
 import org.apache.spark.sql.execution.datasources.v2.jdbc.JDBCTableCatalog;
+import org.apache.gravitino.spark.connector.catalog.BaseCatalog;
 
+@Slf4j
 public class GravitinoHandler implements CatalogHandler {
-
-  private final DatasetNamespaceCombinedResolver namespaceResolver;
+  private final String gravitinoMetalakeName;
+  private final String gravitinoCatalogClassName =
+      "org.apache.gravitino.spark.connector.catalog.BaseCatalog";
 
   public GravitinoHandler(OpenLineageContext context) {
-    namespaceResolver = new DatasetNamespaceCombinedResolver(context.getOpenLineageConfig());
+    this.gravitinoMetalakeName = context.getSparkSession().get().conf().get("spark.sql.gravitino.metalake", "null");
   }
 
   @Override
   public boolean hasClasses() {
-    return true;
+    try {
+      GravitinoHandler.class.getClassLoader().loadClass(gravitinoCatalogClassName);
+      return true;
+    } catch (Exception e) {
+      log.debug("The Gravitino catalog is not present");
+    }
+    return false;
   }
 
   @Override
   public boolean isClass(TableCatalog tableCatalog) {
-    return tableCatalog.getClass().getName().toLowerCase().contains("gravitino");
+    return tableCatalog instanceof BaseCatalog;
   }
 
   @SneakyThrows
@@ -48,17 +58,17 @@ public class GravitinoHandler implements CatalogHandler {
       TableCatalog tableCatalog,
       Identifier identifier,
       Map<String, String> properties) {
-    String catalogName = tableCatalog.name();
-    String[] nameSpace = identifier.namespace();
+    String gravitinoCatalogName = tableCatalog.name();
+    String[] gravitinoNameSpace = identifier.namespace();
 
-    if (nameSpace == null || nameSpace.length == 0) {
-      nameSpace = tableCatalog.defaultNamespace();
+    if (gravitinoNameSpace == null || gravitinoNameSpace.length == 0) {
+      gravitinoNameSpace = tableCatalog.defaultNamespace();
     }
 
     String name = Stream.concat(
-        Stream.concat(Stream.of(catalogName), Arrays.stream(nameSpace)), Stream.of(identifier.name()))
+        Stream.concat(Stream.of(gravitinoCatalogName), Arrays.stream(gravitinoNameSpace)), Stream.of(identifier.name()))
             .collect(Collectors.joining("."));
-    return new DatasetIdentifier(name, "test");
+    return new DatasetIdentifier(name, gravitinoMetalakeName);
   }
 
   @Override
