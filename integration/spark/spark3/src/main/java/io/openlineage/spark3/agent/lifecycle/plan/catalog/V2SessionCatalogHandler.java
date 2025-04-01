@@ -58,8 +58,8 @@ public class V2SessionCatalogHandler implements CatalogHandler {
                   namespaceLocation, identifier.namespace(), identifier.name()));
     }
 
-    //String name = tableCatalog.name() + "." + identifier;
-    //di = new DatasetIdentifier(name, "test");
+    // String name = tableCatalog.name() + "." + identifier;
+    // di = new DatasetIdentifier(name, "test");
 
     if (namespaceLocation != null) {
       di.withSymlink(

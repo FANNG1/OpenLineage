@@ -45,17 +45,14 @@ public class InsertIntoDirVisitor
               if (cmd.overwrite()) {
                 outputDataset =
                     outputDataset()
-                        .getDataset(
-                            di,
-                            cmd.child().schema(),
-                            LifecycleStateChange
-                                .OVERWRITE);
+                        .getDataset(di, cmd.child().schema(), LifecycleStateChange.OVERWRITE);
               } else {
                 outputDataset = outputDataset().getDataset(di, cmd.child().schema());
               }
 
               if (GVFSUtils.isGVFS(uri)) {
-                outputDataset = GVFSUtils.injectGVFSFacets(context.getOpenLineage(), outputDataset, uri);
+                outputDataset =
+                    GVFSUtils.injectGVFSFacets(context.getOpenLineage(), outputDataset, uri);
               }
 
               return Collections.singletonList(outputDataset);

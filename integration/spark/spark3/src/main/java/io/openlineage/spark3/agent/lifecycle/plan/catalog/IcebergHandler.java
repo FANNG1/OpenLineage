@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -136,7 +134,7 @@ public class IcebergHandler implements CatalogHandler {
     Path tableLocation =
         maybeTableLocation.orElseGet(
             () -> reconstructDefaultLocation(new Path(warehouseLocation), identifier));
-    //DatasetIdentifier di = PathUtils.fromPath(tableLocation);
+    // DatasetIdentifier di = PathUtils.fromPath(tableLocation);
     String name = catalogName + "." + identifier;
     DatasetIdentifier di = new DatasetIdentifier(name, "test");
 

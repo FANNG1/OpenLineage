@@ -54,8 +54,8 @@ public class InsertIntoHadoopFsRelationVisitor
     if (!command.catalogTable().isDefined()) {
       URI location = command.outputPath().toUri();
       if (GVFSUtils.isGVFS(location)) {
-        outputDataset = GVFSUtils.injectGVFSFacets(context.getOpenLineage(), outputDataset,
-            location);
+        outputDataset =
+            GVFSUtils.injectGVFSFacets(context.getOpenLineage(), outputDataset, location);
       }
     }
 
