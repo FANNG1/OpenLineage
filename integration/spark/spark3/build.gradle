@@ -45,6 +45,8 @@ ext {
 
 dependencies {
     implementation(project(path: ":shared", configuration: "scala${configurationName}RuntimeElements"))
+    implementation project(path: ':shared')
+    implementation project(path: ':shared')
 
     compileOnly("org.apache.gravitino:gravitino-spark-common:${gravitinoVersion}")
     compileOnly("org.apache.spark:spark-hive_${scalaBinaryVersion}:${sparkVersion}")

@@ -7,6 +7,7 @@ package io.openlineage.spark3.agent.lifecycle.plan.catalog;
 
 import io.openlineage.client.OpenLineage;
 import io.openlineage.client.utils.DatasetIdentifier;
+import io.openlineage.client.utils.gravitino.GravitinoInfoProviderImpl;
 import io.openlineage.spark.api.OpenLineageContext;
 import java.util.Arrays;
 import java.util.List;
@@ -24,13 +25,18 @@ public class CatalogUtils3 {
   private static List<CatalogHandler> getHandlers(OpenLineageContext context) {
     List<CatalogHandler> handlers =
         Arrays.asList(
-            new IcebergHandler(context),
             new DeltaHandler(context),
             new DatabricksDeltaHandler(context),
             new DatabricksUnityV2Handler(context),
-            new JdbcHandler(context),
             new GravitinoHandler(context),
             new V2SessionCatalogHandler());
+    if (GravitinoInfoProviderImpl.getInstance().useGravitinoIdentifier()) {
+      handlers.add(new GravitinoIcebergHandler(context));
+      handlers.add(new GravitinoJDBCHandler(context));
+    } else {
+      handlers.add(new IcebergHandler(context));
+      handlers.add(new JdbcHandler(context));
+    }
     return handlers.stream().filter(CatalogHandler::hasClasses).collect(Collectors.toList());
   }
 

@@ -7,14 +7,15 @@ package io.openlineage.client.utils.filesystem;
 
 import io.openlineage.client.utils.DatasetIdentifier;
 import io.openlineage.client.utils.filesystem.gvfs.GVFSUtils;
-import io.openlineage.client.utils.gravitino.MetalakeProviderImpl;
+import io.openlineage.client.utils.gravitino.GravitinoInfoProviderImpl;
 import java.net.URI;
 
 public class GVFSFilesystemDatasetExtractor implements FilesystemDatasetExtractor {
   public static final String SCHEME = "gvfs";
   public static final String GVFS_NAMESPACE_NAME = "__GVFS_NAMESPACE";
 
-  private final MetalakeProviderImpl metalakeProvider = new MetalakeProviderImpl();
+  private final GravitinoInfoProviderImpl metalakeProvider =
+      GravitinoInfoProviderImpl.getInstance();
 
   @Override
   public boolean isDefinedAt(URI location) {

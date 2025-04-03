@@ -8,10 +8,8 @@ package io.openlineage.spark3.agent.lifecycle.plan.catalog;
 import com.google.common.base.Preconditions;
 import io.openlineage.client.utils.DatasetIdentifier;
 import io.openlineage.spark.api.OpenLineageContext;
-import java.util.Arrays;
+import io.openlineage.spark3.agent.utils.GravitinoUtils;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -59,19 +57,11 @@ public class GravitinoHandler implements CatalogHandler {
       TableCatalog tableCatalog,
       Identifier identifier,
       Map<String, String> properties) {
-    String gravitinoCatalogName = tableCatalog.name();
-    String[] gravitinoNameSpace = identifier.namespace();
-
-    if (gravitinoNameSpace == null || gravitinoNameSpace.length == 0) {
-      gravitinoNameSpace = tableCatalog.defaultNamespace();
-    }
-
-    String name =
-        Stream.concat(
-                Stream.concat(Stream.of(gravitinoCatalogName), Arrays.stream(gravitinoNameSpace)),
-                Stream.of(identifier.name()))
-            .collect(Collectors.joining("."));
-    return new DatasetIdentifier(name, getGravitinoMetalakeName());
+    return GravitinoUtils.getGravitinoDatasetIdentifier(
+        getGravitinoMetalakeName(),
+        tableCatalog.name(),
+        tableCatalog.defaultNamespace(),
+        identifier);
   }
 
   @Override
