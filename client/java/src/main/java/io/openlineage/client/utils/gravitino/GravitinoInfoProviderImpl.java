@@ -4,10 +4,27 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class MetalakeProviderImpl {
+public class GravitinoInfoProviderImpl {
   private String metalake;
-  private List<GravitinoMetalakeProvider> providers =
-      Arrays.asList(new SparkGravitinoMetalakeProvider());
+  private List<GravitinoInfoProvider> providers = Arrays.asList(new SparkGravitinoInfoProvider());
+
+  private static class Holder {
+    private static final GravitinoInfoProviderImpl INSTANCE = new GravitinoInfoProviderImpl();
+  }
+
+  public static GravitinoInfoProviderImpl getInstance() {
+    return Holder.INSTANCE;
+  }
+
+  private GravitinoInfoProviderImpl() {}
+
+  public boolean useGravitinoIdentifier() {
+    return false;
+  }
+
+  public String getGravitinoCatalog(String originCatalogName) {
+    return originCatalogName;
+  }
 
   public String getMetalakeName() {
     if (metalake != null) return metalake;
@@ -21,7 +38,7 @@ public class MetalakeProviderImpl {
   }
 
   private String doGetMetalakeName() {
-    for (GravitinoMetalakeProvider provider : providers) {
+    for (GravitinoInfoProvider provider : providers) {
       if (provider.isAvailable()) {
         Optional<String> metalakeOption = provider.getMetalake();
         if (metalakeOption.isPresent()) {
