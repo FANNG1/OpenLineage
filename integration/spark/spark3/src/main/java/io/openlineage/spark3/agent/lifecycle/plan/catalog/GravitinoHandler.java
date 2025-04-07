@@ -5,14 +5,13 @@
 
 package io.openlineage.spark3.agent.lifecycle.plan.catalog;
 
-import com.google.common.base.Preconditions;
 import io.openlineage.client.utils.DatasetIdentifier;
+import io.openlineage.client.utils.gravitino.GravitinoInfoProviderImpl;
 import io.openlineage.spark.api.OpenLineageContext;
 import io.openlineage.spark3.agent.utils.GravitinoUtils;
 import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.gravitino.spark.connector.catalog.BaseCatalog;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.connector.catalog.Identifier;
@@ -23,15 +22,12 @@ public class GravitinoHandler implements CatalogHandler {
 
   private static final String gravitinoCatalogClassName =
       "org.apache.gravitino.spark.connector.catalog.BaseCatalog";
-  private static final String metalakeConfigKey = "spark.sql.gravitino.metalake";
   private final OpenLineageContext context;
-
-  // Gravitino metalake name is lazy initialized because we may, couldn't get it when creating
-  // Gravitino handler in Spark environment without Gravitino package.
-  private String gravitinoMetalakeName;
+  private final GravitinoInfoProviderImpl provider;
 
   public GravitinoHandler(OpenLineageContext context) {
     this.context = context;
+    this.provider = GravitinoInfoProviderImpl.getInstance();
   }
 
   @Override
@@ -70,17 +66,6 @@ public class GravitinoHandler implements CatalogHandler {
   }
 
   private String getGravitinoMetalakeName() {
-    if (gravitinoMetalakeName == null) {
-      synchronized (this) {
-        if (gravitinoMetalakeName != null) {
-          return gravitinoMetalakeName;
-        }
-        gravitinoMetalakeName = context.getSparkSession().get().conf().get(metalakeConfigKey, "");
-        Preconditions.checkArgument(
-            StringUtils.isNotBlank(gravitinoMetalakeName),
-            "Couldn't get Gravitino metalake name from configuration: " + metalakeConfigKey);
-      }
-    }
-    return gravitinoMetalakeName;
+    return provider.getMetalakeName();
   }
 }
