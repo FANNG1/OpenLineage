@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class GravitinoInfoProviderImpl {
-  private String metalake;
+  private GravitinoInfo gravitinoInfo;
   private List<GravitinoInfoProvider> providers = Arrays.asList(new SparkGravitinoInfoProvider());
 
   private static class Holder {
@@ -16,36 +16,47 @@ public class GravitinoInfoProviderImpl {
     return Holder.INSTANCE;
   }
 
+  public static GravitinoInfoProviderImpl newInstanceForTest() {
+    return new GravitinoInfoProviderImpl();
+  }
+
   private GravitinoInfoProviderImpl() {}
 
   public boolean useGravitinoIdentifier() {
-    return false;
+    return getGravitinoInfo().isUseGravitinoIdentifier();
   }
 
   public String getGravitinoCatalog(String originCatalogName) {
-    return originCatalogName;
+    return getGravitinoInfo()
+        .getCatalogMapping()
+        .getOrDefault(originCatalogName, originCatalogName);
   }
 
   public String getMetalakeName() {
-    if (metalake != null) return metalake;
-    synchronized (this) {
-      if (metalake != null) {
-        return metalake;
-      }
-      metalake = doGetMetalakeName();
+    Optional<String> metalake = getGravitinoInfo().getMetalake();
+    if (!metalake.isPresent()) {
+      throw new RuntimeException("Couldn't get Gravitino metalake");
     }
-    return metalake;
+    return metalake.get();
   }
 
-  private String doGetMetalakeName() {
+  public GravitinoInfo getGravitinoInfo() {
+    if (gravitinoInfo != null) return gravitinoInfo;
+    synchronized (this) {
+      if (gravitinoInfo != null) {
+        return gravitinoInfo;
+      }
+      gravitinoInfo = doGetGravitinoInfo();
+    }
+    return gravitinoInfo;
+  }
+
+  private GravitinoInfo doGetGravitinoInfo() {
     for (GravitinoInfoProvider provider : providers) {
       if (provider.isAvailable()) {
-        Optional<String> metalakeOption = provider.getMetalake();
-        if (metalakeOption.isPresent()) {
-          return metalakeOption.get();
-        }
+        return provider.getGravitinoInfo();
       }
     }
-    throw new IllegalStateException("Could not find Gravitino metalake name");
+    throw new IllegalStateException("Could not find Gravitino info");
   }
 }

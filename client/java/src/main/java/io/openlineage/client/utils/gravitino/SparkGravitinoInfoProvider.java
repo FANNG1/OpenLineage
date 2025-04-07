@@ -12,10 +12,11 @@ public class SparkGravitinoInfoProvider implements GravitinoInfoProvider {
 
   private static final String SPARK_SESSION_CLASS_NAME = "org.apache.spark.sql.SparkSession";
   private static final String SPARK_RUN_CONFIG_CLASS_NAME = "org.apache.spark.sql.RuntimeConfig";
-  public static final String metalakeConfigKey = "spark.hadoop.fs.gravitino.client.metalake";
+  public static final String metalakeConfigKeyForFS = "spark.hadoop.fs.gravitino.client.metalake";
+  public static final String metalakeConfigKeyForConnector = "spark.sql.gravitino.metalake";
 
   public static final String useGravitinoConfigKey = "spark.sql.gravitino.useGravitinoIdentifier";
-  public static final String catalogMappingConfigKey = "spark.sql.gravitino.useGravitinoIdentifier";
+  public static final String catalogMappingConfigKey = "spark.sql.gravitino.catalogMappings";
 
   @Override
   public boolean isAvailable() {
@@ -28,7 +29,15 @@ public class SparkGravitinoInfoProvider implements GravitinoInfoProvider {
   }
 
   @Override
-  public boolean useGravitinoIdentifier() {
+  public GravitinoInfo getGravitinoInfo() {
+    return GravitinoInfo.builder()
+        .useGravitinoIdentifier(getUseGravitinoIdentifier())
+        .catalogMapping(getCatalogMapping())
+        .metalake(getMetalake())
+        .build();
+  }
+
+  private boolean getUseGravitinoIdentifier() {
     String useGravitino = getSparkConfigValue(useGravitinoConfigKey);
     if (StringUtils.isBlank(useGravitino)) {
       return false;
@@ -36,7 +45,7 @@ public class SparkGravitinoInfoProvider implements GravitinoInfoProvider {
     return Boolean.valueOf(useGravitino);
   }
 
-  public Map<String, String> getCatalogMapping() {
+  private Map<String, String> getCatalogMapping() {
     String catalogMapping = getSparkConfigValue(catalogMappingConfigKey);
     if (StringUtils.isBlank(catalogMapping)) {
       return new HashMap<>();
@@ -54,8 +63,7 @@ public class SparkGravitinoInfoProvider implements GravitinoInfoProvider {
     return catalogMaps;
   }
 
-  @Override
-  public Optional<String> getMetalake() {
+  private Optional<String> getMetalake() {
     try {
       return Optional.ofNullable(tryGetMetalake());
     } catch (Exception e) {
@@ -64,7 +72,11 @@ public class SparkGravitinoInfoProvider implements GravitinoInfoProvider {
   }
 
   private String tryGetMetalake() {
-    return getSparkConfigValue(metalakeConfigKey);
+    String metalake = getSparkConfigValue(metalakeConfigKeyForConnector);
+    if (metalake != null) {
+      return metalake;
+    }
+    return getSparkConfigValue(metalakeConfigKeyForFS);
   }
 
   @SneakyThrows
