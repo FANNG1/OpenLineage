@@ -44,7 +44,7 @@ public class GravitinoInfoProviderImpl {
     return metalake.get();
   }
 
-  public GravitinoInfo getGravitinoInfo() {
+  private GravitinoInfo getGravitinoInfo() {
     if (gravitinoInfo != null) return gravitinoInfo;
     synchronized (this) {
       if (gravitinoInfo != null) {
