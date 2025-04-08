@@ -99,10 +99,6 @@ dependencies {
     implementation(project(path: ":gcp"))
 
     implementation("org.apache.httpcomponents.client5:httpclient5:5.4.2")
-    implementation project(path: ':shared')
-    implementation project(path: ':shared')
-    implementation project(path: ':spark32')
-    implementation project(path: ':spark3')
 
     compileOnly("org.apache.spark:spark-core_${scala}:${spark}")
     compileOnly("org.apache.spark:spark-sql_${scala}:${spark}")
