@@ -44,7 +44,7 @@ public class SparkGravitinoInfoProvider implements GravitinoInfoProvider {
   private boolean getUseGravitinoIdentifier() {
     String useGravitino = getSparkConfigValue(useGravitinoConfigKey);
     if (StringUtils.isBlank(useGravitino)) {
-      return false;
+      return true;
     }
     return Boolean.valueOf(useGravitino);
   }
