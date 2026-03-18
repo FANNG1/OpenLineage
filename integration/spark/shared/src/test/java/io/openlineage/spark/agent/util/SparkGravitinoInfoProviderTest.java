@@ -102,7 +102,7 @@ public class SparkGravitinoInfoProviderTest {
     provider = GravitinoInfoProviderImpl.newInstanceForTest();
     cleanUpExistingSession();
     SparkSession.builder().master("local[*]").appName("test2").getOrCreate();
-    Assertions.assertEquals(false, provider.useGravitinoIdentifier());
+    Assertions.assertEquals(true, provider.useGravitinoIdentifier());
 
     provider = GravitinoInfoProviderImpl.newInstanceForTest();
     cleanUpExistingSession();
